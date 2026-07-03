@@ -150,7 +150,6 @@ export function RepairTable({ tickets }: { tickets: Ticket[] }) {
             <th className="text-left py-3 px-4 font-medium text-gray-500">อาการ</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">วันที่ซ่อม</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">สถานะ</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">แก้ไข</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">จัดการ</th>
           </tr>
         </thead>
@@ -181,9 +180,6 @@ export function RepairTable({ tickets }: { tickets: Ticket[] }) {
                 >
                   {statusLabel[row.ticket.status] || row.ticket.status}
                 </span>
-              </td>
-              <td className="py-2 px-4 text-gray-700 text-xs max-w-xs whitespace-pre-wrap">
-                {row.note ?? <span className="text-gray-300">-</span>}
               </td>
               <td className="py-2 px-4">
                 <Link

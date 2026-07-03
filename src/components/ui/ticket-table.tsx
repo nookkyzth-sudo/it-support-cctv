@@ -148,7 +148,6 @@ export function TicketTable({ tickets }: { tickets: Ticket[] }) {
             <th className="text-left py-3 px-4 font-medium text-gray-500">วันที่ซ่อม</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">สถานะ</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">วันที่แจ้ง</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">แก้ไข</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">หมายเหตุ</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">จัดการ</th>
           </tr>
@@ -176,17 +175,6 @@ export function TicketTable({ tickets }: { tickets: Ticket[] }) {
               </td>
               <td className="py-3 px-4 text-gray-500">
                 {formatDate(ticket.report_date)}
-              </td>
-              <td className="py-3 px-4 text-gray-600 max-w-xs">
-                {(ticket.logs || []).filter((l) => l.note?.trim()).length > 0 ? (
-                  <ul className="space-y-1">
-                    {(ticket.logs || []).filter((l) => l.note?.trim()).map((l) => (
-                      <li key={l.log_id} className="text-xs whitespace-pre-wrap">{l.note!.trim()}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <span className="text-gray-400">-</span>
-                )}
               </td>
               <td className="py-3 px-4"></td>
               <td className="py-3 px-4">
