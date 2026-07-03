@@ -38,7 +38,7 @@ export async function createBranchAction(formData: FormData) {
   const { error } = await supabase.from("branches").insert({ branch_name, zone });
   if (error) throw new Error(error.message);
 
-  revalidatePath("/admin");
+  revalidatePath("/admin", "page");
 }
 
 export async function updateBranchAction(formData: FormData) {
@@ -55,7 +55,7 @@ export async function updateBranchAction(formData: FormData) {
     .eq("branch_id", branch_id);
 
   if (error) throw new Error(error.message);
-  revalidatePath("/admin");
+  revalidatePath("/admin", "page");
 }
 
 export async function deleteBranchAction(formData: FormData) {
@@ -86,7 +86,7 @@ export async function deleteBranchAction(formData: FormData) {
   if (error) {
     return;
   }
-  revalidatePath("/admin");
+  revalidatePath("/admin", "page");
 }
 
 export async function createCategoryAction(formData: FormData) {
@@ -98,7 +98,7 @@ export async function createCategoryAction(formData: FormData) {
   const { error } = await supabase.from("categories").insert({ category_name });
   if (error) throw new Error(error.message);
 
-  revalidatePath("/admin");
+  revalidatePath("/admin", "page");
 }
 
 export async function updateCategoryAction(formData: FormData) {
@@ -114,7 +114,7 @@ export async function updateCategoryAction(formData: FormData) {
     .eq("category_id", category_id);
 
   if (error) throw new Error(error.message);
-  revalidatePath("/admin");
+  revalidatePath("/admin", "page");
 }
 
 export async function deleteCategoryAction(formData: FormData) {
@@ -140,7 +140,7 @@ export async function deleteCategoryAction(formData: FormData) {
   if (error) {
     return;
   }
-  revalidatePath("/admin");
+  revalidatePath("/admin", "page");
 }
 
 export async function updateUserAction(formData: FormData) {
@@ -160,7 +160,7 @@ export async function updateUserAction(formData: FormData) {
     .eq("user_id", user_id);
 
   if (error) throw new Error(error.message);
-  revalidatePath("/admin");
+  revalidatePath("/admin", "page");
 }
 
 export async function deleteUserAction(formData: FormData) {
@@ -197,7 +197,7 @@ export async function deleteUserAction(formData: FormData) {
     return;
   }
 
-  revalidatePath("/admin");
+  revalidatePath("/admin", "page");
 }
 
 export async function updateTicketAdminAction(formData: FormData) {
@@ -249,9 +249,9 @@ export async function updateTicketAdminAction(formData: FormData) {
     .eq("ticket_id", ticket_id);
 
   if (error) throw new Error(error.message);
-  revalidatePath("/admin");
-  revalidatePath("/dashboard");
-  revalidatePath("/repairs");
+  revalidatePath("/admin", "page");
+  revalidatePath("/dashboard", "page");
+  revalidatePath("/repairs", "page");
 }
 
 export async function deleteTicketAdminAction(formData: FormData) {
@@ -279,7 +279,8 @@ export async function deleteTicketAdminAction(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/admin");
-  revalidatePath("/dashboard");
-  revalidatePath("/repairs");
+  revalidatePath("/admin", "page");
+  revalidatePath("/dashboard", "page");
+  revalidatePath("/repairs", "page");
 }
+

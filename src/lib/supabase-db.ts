@@ -1,23 +1,32 @@
+import { unstable_cache } from "next/cache";
 import { createAdminClient, createClient } from "./supabase-server";
 import type { Ticket, Branch, Category, User, TicketStatus, DashboardKpi } from "@/types";
 
-export async function getBranches(): Promise<Branch[]> {
-  const supabase = await createAdminClient();
-  const { data } = await supabase
-    .from("branches")
-    .select("*")
-    .order("branch_name", { ascending: true });
-  return data || [];
-}
+export const getBranches = unstable_cache(
+  async (): Promise<Branch[]> => {
+    const supabase = await createAdminClient();
+    const { data } = await supabase
+      .from("branches")
+      .select("*")
+      .order("branch_name", { ascending: true });
+    return data || [];
+  },
+  ["branches"],
+  { revalidate: 300, tags: ["branches"] }
+);
 
-export async function getCategories(): Promise<Category[]> {
-  const supabase = await createAdminClient();
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .order("category_name", { ascending: true });
-  return data || [];
-}
+export const getCategories = unstable_cache(
+  async (): Promise<Category[]> => {
+    const supabase = await createAdminClient();
+    const { data } = await supabase
+      .from("categories")
+      .select("*")
+      .order("category_name", { ascending: true });
+    return data || [];
+  },
+  ["categories"],
+  { revalidate: 300, tags: ["categories"] }
+);
 
 export async function getCurrentUser(): Promise<User | null> {
   const supabase = await createAdminClient();
