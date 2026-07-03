@@ -40,12 +40,17 @@ function buildRows(tickets: Ticket[]): RepairRow[] {
 }
 
 export function RepairTable({ tickets }: { tickets: Ticket[] }) {
-  const rows = buildRows(tickets);
+  const sortedTickets = [...tickets].sort((a, b) => {
+    const aDate = new Date(a.report_date).getTime();
+    const bDate = new Date(b.report_date).getTime();
+    return aDate - bDate;
+  });
+  const rows = buildRows(sortedTickets);
 
   const downloadCsv = () => {
     const headers = ["วันที่แจ้ง", "สาขา", "อุปกรณ์", "อาการ", "วันที่ซ่อม", "สถานะ", "แก้ไข", "หมายเหตุ"];
     const csvRows: string[][] = [];
-    for (const ticket of tickets) {
+    for (const ticket of sortedTickets) {
       const firstBase = [
         formatDate(ticket.report_date),
         ticket.branch?.branch_name || "",
@@ -85,7 +90,7 @@ export function RepairTable({ tickets }: { tickets: Ticket[] }) {
   const downloadExcel = async () => {
     const XLSX = await import("xlsx");
     const data: Record<string, string>[] = [];
-    for (const ticket of tickets) {
+    for (const ticket of sortedTickets) {
       const firstBase = {
         "วันที่แจ้ง": formatDate(ticket.report_date),
         สาขา: ticket.branch?.branch_name || "",

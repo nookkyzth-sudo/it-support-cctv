@@ -95,7 +95,7 @@ export async function getTickets(filters?: {
   let query = supabase
     .from("tickets")
     .select(selectQuery)
-    .order("report_date", { ascending: false })
+    .order("report_date", { ascending: true })
     .limit(pageLimit);
 
   if (filters?.branch_id) query = query.eq("branch_id", parseInt(filters.branch_id));
