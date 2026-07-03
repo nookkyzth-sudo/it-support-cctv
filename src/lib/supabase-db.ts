@@ -73,14 +73,21 @@ export async function getTickets(filters?: {
   userBranchId?: number | null;
   date_from?: string;
   date_to?: string;
+  includeLogs?: boolean;
 }): Promise<Ticket[]> {
   const supabase = await createAdminClient();
 
+  const selectQuery = filters?.includeLogs
+    ? "*, branch:branches(*), category:categories(*), reporter:users!reporter_id(*), technician:users!technician_id(*), logs:ticket_logs(log_id,note,changed_at,old_status,new_status,changed_by)"
+    : "*, branch:branches(*), category:categories(*), technician:users!technician_id(*)";
+
+  const pageLimit = filters?.includeLogs ? 200 : 50;
+
   let query = supabase
     .from("tickets")
-    .select("*, branch:branches(*), category:categories(*), reporter:users!reporter_id(*), technician:users!technician_id(*), logs:ticket_logs(log_id,note,changed_at,old_status,new_status,changed_by)")
+    .select(selectQuery)
     .order("report_date", { ascending: false })
-    .limit(500);
+    .limit(pageLimit);
 
   if (filters?.branch_id) query = query.eq("branch_id", parseInt(filters.branch_id));
   if (filters?.category_id) query = query.eq("category_id", parseInt(filters.category_id));

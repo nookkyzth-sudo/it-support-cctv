@@ -34,7 +34,7 @@ export default async function RepairsPage({
   const [branches, categories, tickets] = await Promise.all([
     getBranches(),
     getCategories(),
-    getTickets({ ...params, userBranchId }),
+    getTickets({ ...params, userBranchId, includeLogs: true }),
   ]);
 
   return (
