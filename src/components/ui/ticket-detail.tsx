@@ -32,12 +32,21 @@ export function TicketDetail({ ticket }: { ticket: Ticket }) {
   const [saving, setSaving] = useState(false);
 
   const canChangeStatus = ticket.status !== "Resolved";
+  const canEditProgress = ticket.status !== "Pending" && ticket.status !== "Resolved";
   const repairLogs = ticket.logs || [];
 
   async function handleStatusChange(newStatus: string) {
     setSaving(true);
     try {
-      await updateTicketStatus(ticket.ticket_id, newStatus, note, technicianName, logDate);
+      const statusOnly = ticket.status === "Pending" && newStatus === "In_Progress";
+      await updateTicketStatus(
+        ticket.ticket_id,
+        newStatus,
+        statusOnly ? undefined : note,
+        technicianName,
+        logDate,
+        statusOnly
+      );
       router.refresh();
     } catch (e) {
       console.error(e);
@@ -171,15 +180,19 @@ export function TicketDetail({ ticket }: { ticket: Ticket }) {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={4}
+              disabled={!canEditProgress}
               placeholder="อัพเดทงานวันนี้หรือแก้ไขข้อมูลย้อนหลัง..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none disabled:bg-gray-100 disabled:text-gray-500"
             />
+            {!canEditProgress && (
+              <p className="mt-1 text-xs text-amber-700">กรุณากด "รับงาน" ก่อน จึงจะเริ่มบันทึกความคืบหน้าได้</p>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
             <button
               onClick={handleSaveProgress}
-              disabled={saving}
+              disabled={saving || !canEditProgress}
               className="px-4 py-2 bg-slate-700 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
             >
               บันทึกความคืบหน้า
@@ -210,15 +223,6 @@ export function TicketDetail({ ticket }: { ticket: Ticket }) {
                   ปิดงาน (Resolved)
                 </button>
               </>
-            )}
-            {ticket.status === "Pending" && (
-              <button
-                onClick={() => handleStatusChange("Claim")}
-                disabled={saving}
-                className="px-4 py-2 bg-yellow-500 text-white rounded-lg text-sm font-medium hover:bg-yellow-600 disabled:opacity-50"
-              >
-                Claim
-              </button>
             )}
           </div>
         </div>

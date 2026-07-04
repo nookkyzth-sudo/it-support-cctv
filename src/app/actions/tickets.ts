@@ -136,7 +136,8 @@ export async function updateTicketStatus(
   newStatus: string,
   technicianNote?: string,
   technicianName?: string,
-  logDate?: string
+  logDate?: string,
+  statusOnly?: boolean
 ) {
   const authSupabase = await createClient();
   const {
@@ -193,7 +194,7 @@ export async function updateTicketStatus(
     updateData.technician_id = technicianId;
   }
 
-  if (technicianNote !== undefined) {
+  if (!statusOnly && technicianNote !== undefined) {
     updateData.technician_note = technicianNoteText;
   }
   if (newStatus === "Resolved") {
@@ -213,7 +214,7 @@ export async function updateTicketStatus(
     ticket_id: ticketId,
     old_status: current?.status || null,
     new_status: newStatus,
-    note: technicianNoteText,
+    note: statusOnly ? null : technicianNoteText,
     changed_by: user.id,
     changed_at: logDate ? new Date(logDate).toISOString() : undefined,
   });
