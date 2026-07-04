@@ -41,6 +41,11 @@ export default async function RootLayout({
         <main className={user ? "max-w-7xl mx-auto px-4 py-6" : ""}>
           {children}
         </main>
+        <footer className="border-t border-gray-200 bg-white/80">
+          <div className="max-w-7xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
+            เว็บไซต์นี้พัฒนาโดย Nook-Thanakorn
+          </div>
+        </footer>
       </body>
     </html>
   );
