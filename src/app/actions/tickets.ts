@@ -175,9 +175,21 @@ export async function updateTicketStatus(
 
   const { data: current } = await supabase
     .from("tickets")
-    .select("status")
+    .select("status, reporter_id")
     .eq("ticket_id", ticketId)
     .single();
+
+  if (!current) throw new Error("Ticket not found");
+
+  const { data: dbUser } = await supabase
+    .from("users")
+    .select("role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (dbUser?.role !== "admin" && current.reporter_id !== user.id) {
+    throw new Error("Forbidden");
+  }
 
   const technicianNoteText = technicianNote?.trim() || null;
 

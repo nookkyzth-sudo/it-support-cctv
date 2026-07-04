@@ -16,12 +16,24 @@ export async function GET(
 
   const supabase = await createAdminClient();
   const { id } = await params;
+  const ticketId = parseInt(id);
 
-  const { data: ticket, error } = await supabase
+  const { data: dbUser } = await supabase
+    .from("users")
+    .select("role")
+    .eq("user_id", user.id)
+    .single();
+
+  let ticketQuery = supabase
     .from("tickets")
     .select("*, branch:branches(*), category:categories(*), reporter:users!reporter_id(*), technician:users!technician_id(*)")
-    .eq("ticket_id", parseInt(id))
-    .single();
+    .eq("ticket_id", ticketId);
+
+  if (dbUser?.role !== "admin") {
+    ticketQuery = ticketQuery.eq("reporter_id", user.id);
+  }
+
+  const { data: ticket, error } = await ticketQuery.single();
 
   if (error || !ticket) {
     return Response.json({ error: "Not found" }, { status: 404 });
@@ -30,13 +42,13 @@ export async function GET(
   const { data: attachments } = await supabase
     .from("ticket_attachments")
     .select("*")
-    .eq("ticket_id", parseInt(id))
+    .eq("ticket_id", ticketId)
     .order("uploaded_at", { ascending: true });
 
   const { data: logs } = await supabase
     .from("ticket_logs")
     .select("*, changer:users!changed_by(*)")
-    .eq("ticket_id", parseInt(id))
+    .eq("ticket_id", ticketId)
     .order("changed_at", { ascending: true });
 
   return Response.json({ ...ticket, attachments: attachments || [], logs: logs || [] });
@@ -64,6 +76,26 @@ export async function PATCH(
     log_date?: string;
   };
   const ticketId = parseInt(id);
+
+  const { data: dbUser } = await supabase
+    .from("users")
+    .select("role")
+    .eq("user_id", user.id)
+    .single();
+
+  let accessQuery = supabase
+    .from("tickets")
+    .select("ticket_id")
+    .eq("ticket_id", ticketId);
+
+  if (dbUser?.role !== "admin") {
+    accessQuery = accessQuery.eq("reporter_id", user.id);
+  }
+
+  const { data: canAccess } = await accessQuery.maybeSingle();
+  if (!canAccess) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const technicianNote = body.technician_note?.trim() || null;
 

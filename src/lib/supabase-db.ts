@@ -29,12 +29,13 @@ export const getCategories = unstable_cache(
 );
 
 export async function getCurrentUser(): Promise<User | null> {
-  const supabase = await createAdminClient();
+  const authSupabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await authSupabase.auth.getUser();
   if (!user) return null;
 
+  const supabase = await createAdminClient();
   const { data } = await supabase
     .from("users")
     .select("*, branch:branches(*)")
@@ -43,15 +44,24 @@ export async function getCurrentUser(): Promise<User | null> {
   return data;
 }
 
-export async function getKpis(userBranchId?: number | null): Promise<DashboardKpi> {
+export async function getKpis(options?: {
+  userBranchId?: number | null;
+  viewerUserId?: string;
+  isAdmin?: boolean;
+}): Promise<DashboardKpi> {
   const supabase = await createAdminClient();
+  const userBranchId = options?.userBranchId;
+  const viewerUserId = options?.viewerUserId;
+  const isAdmin = options?.isAdmin || false;
 
   let query = supabase.from("tickets").select("*", { count: "exact", head: true });
   if (userBranchId) query = query.eq("branch_id", userBranchId);
+  if (!isAdmin && viewerUserId) query = query.eq("reporter_id", viewerUserId);
   const { count: pending } = await query.eq("status", "Pending");
 
   query = supabase.from("tickets").select("*", { count: "exact", head: true });
   if (userBranchId) query = query.eq("branch_id", userBranchId);
+  if (!isAdmin && viewerUserId) query = query.eq("reporter_id", viewerUserId);
   const { count: inProgress } = await query.in("status", ["In_Progress", "Claim"]);
 
   const todayStart = new Date();
@@ -59,12 +69,14 @@ export async function getKpis(userBranchId?: number | null): Promise<DashboardKp
 
   query = supabase.from("tickets").select("*", { count: "exact", head: true });
   if (userBranchId) query = query.eq("branch_id", userBranchId);
+  if (!isAdmin && viewerUserId) query = query.eq("reporter_id", viewerUserId);
   const { count: resolvedToday } = await query
     .eq("status", "Resolved")
     .gte("resolved_date", todayStart.toISOString());
 
   query = supabase.from("tickets").select("*", { count: "exact", head: true });
   if (userBranchId) query = query.eq("branch_id", userBranchId);
+  if (!isAdmin && viewerUserId) query = query.eq("reporter_id", viewerUserId);
   const { count: resolved } = await query.eq("status", "Resolved");
 
   return {
@@ -83,6 +95,8 @@ export async function getTickets(filters?: {
   date_from?: string;
   date_to?: string;
   includeLogs?: boolean;
+  viewerUserId?: string;
+  isAdmin?: boolean;
 }): Promise<Ticket[]> {
   const supabase = await createAdminClient();
 
@@ -102,6 +116,9 @@ export async function getTickets(filters?: {
   if (filters?.category_id) query = query.eq("category_id", parseInt(filters.category_id));
   if (filters?.status) query = query.eq("status", filters.status);
   if (filters?.userBranchId) query = query.eq("branch_id", filters.userBranchId);
+  if (!filters?.isAdmin && filters?.viewerUserId) {
+    query = query.eq("reporter_id", filters.viewerUserId);
+  }
   if (filters?.date_from) query = query.gte("report_date", new Date(filters.date_from).toISOString());
   if (filters?.date_to) {
     const to = new Date(filters.date_to);
@@ -113,14 +130,22 @@ export async function getTickets(filters?: {
   return (data as Ticket[] | null) || [];
 }
 
-export async function getTicketById(id: number): Promise<Ticket | null> {
+export async function getTicketById(
+  id: number,
+  options?: { viewerUserId?: string; isAdmin?: boolean }
+): Promise<Ticket | null> {
   const supabase = await createAdminClient();
 
-  const { data: ticket } = await supabase
+  let ticketQuery = supabase
     .from("tickets")
     .select("*, branch:branches(*), category:categories(*), reporter:users!reporter_id(*), technician:users!technician_id(*)")
-    .eq("ticket_id", id)
-    .single();
+    .eq("ticket_id", id);
+
+  if (!options?.isAdmin && options?.viewerUserId) {
+    ticketQuery = ticketQuery.eq("reporter_id", options.viewerUserId);
+  }
+
+  const { data: ticket } = await ticketQuery.single();
 
   if (!ticket) return null;
 

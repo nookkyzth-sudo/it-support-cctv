@@ -29,15 +29,18 @@ export default async function DashboardPage({
 
   const params = await searchParams;
   const dbUser = await getCurrentUser();
+  const isAdmin = dbUser?.role === "admin";
   const userBranchId = dbUser?.role === "staff" ? dbUser.branch_id : null;
 
   const [branches, categories, kpis, tickets] = await Promise.all([
     getBranches(),
     getCategories(),
-    getKpis(userBranchId),
+    getKpis({ userBranchId, viewerUserId: user.id, isAdmin }),
     getTickets({
       ...params,
       userBranchId,
+      viewerUserId: user.id,
+      isAdmin,
     }),
   ]);
 

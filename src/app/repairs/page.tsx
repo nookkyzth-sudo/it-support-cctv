@@ -29,12 +29,19 @@ export default async function RepairsPage({
 
   const params = await searchParams;
   const dbUser = await getCurrentUser();
+  const isAdmin = dbUser?.role === "admin";
   const userBranchId = dbUser?.role === "staff" ? dbUser.branch_id : null;
 
   const [branches, categories, tickets] = await Promise.all([
     getBranches(),
     getCategories(),
-    getTickets({ ...params, userBranchId, includeLogs: true }),
+    getTickets({
+      ...params,
+      userBranchId,
+      includeLogs: true,
+      viewerUserId: user.id,
+      isAdmin,
+    }),
   ]);
 
   return (

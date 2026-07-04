@@ -33,6 +33,10 @@ export async function GET(request: NextRequest) {
     .eq("user_id", user.id)
     .single();
 
+  if (dbUser?.role !== "admin") {
+    query = query.eq("reporter_id", user.id);
+  }
+
   if (dbUser?.role === "staff" && dbUser?.branch_id) {
     query = query.eq("branch_id", dbUser.branch_id);
   }

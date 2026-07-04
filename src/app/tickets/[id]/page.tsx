@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
-import { getTicketById } from "@/lib/supabase-db";
+import { getCurrentUser, getTicketById } from "@/lib/supabase-db";
 import { TicketDetail } from "@/components/ui/ticket-detail";
 
 export default async function TicketPage({
@@ -15,8 +15,14 @@ export default async function TicketPage({
 
   if (!user) redirect("/login");
 
+  const dbUser = await getCurrentUser();
+  const isAdmin = dbUser?.role === "admin";
+
   const { id } = await params;
-  const ticket = await getTicketById(parseInt(id));
+  const ticket = await getTicketById(parseInt(id), {
+    viewerUserId: user.id,
+    isAdmin,
+  });
 
   if (!ticket) notFound();
 
