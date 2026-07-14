@@ -110,9 +110,20 @@ export async function DELETE(request: NextRequest) {
     return Response.json({ error: "Missing id" }, { status: 400 });
   }
 
-  await prisma.purchase_requests.delete({
-    where: { id: parseInt(id) }
-  });
+  try {
+    // ลบไฟล์แนบก่อนเพื่อป้องกัน Foreign Key Constraint Error
+    await prisma.purchase_attachments.deleteMany({
+      where: { purchase_id: parseInt(id) }
+    });
 
-  return Response.json({ success: true });
+    await prisma.purchase_requests.delete({
+      where: { id: parseInt(id) }
+    });
+
+    return Response.json({ success: true });
+  } catch (error: any) {
+    console.error("Error deleting purchase request:", error);
+    return Response.json({ error: error.message || "Failed to delete" }, { status: 500 });
+  }
 }
+
