@@ -2,21 +2,21 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { cache } from "react";
 import { createAdminClient, createClient } from "@/lib/supabase-server";
-import { NavBar } from "@/components/ui/nav-bar";
+import { SideBar } from "@/components/ui/side-bar";
 
 export const metadata: Metadata = {
   title: "IT Support & CCTV System",
   description: "ระบบจัดการงาน IT Support และ CCTV",
 };
 
-const getIsAdmin = cache(async (userId: string) => {
+const getUserRole = cache(async (userId: string) => {
   const admin = await createAdminClient();
   const { data: me } = await admin
     .from("users")
     .select("role")
     .eq("user_id", userId)
     .maybeSingle();
-  return me?.role === "admin";
+  return me?.role || "staff";
 });
 
 export default async function RootLayout({
@@ -30,22 +30,29 @@ export default async function RootLayout({
   } = await supabase.auth.getUser();
 
   let isAdmin = false;
+  let userRole = "staff";
   if (user) {
-    isAdmin = await getIsAdmin(user.id);
+    userRole = await getUserRole(user.id);
+    isAdmin = userRole === "admin";
   }
 
   return (
     <html lang="th">
-      <body className="min-h-screen bg-gray-50">
-        {user && <NavBar isAdmin={isAdmin} />}
-        <main className={user ? "max-w-7xl mx-auto px-4 py-6" : ""}>
-          {children}
-        </main>
-        <footer className="border-t border-gray-200 bg-white/80">
-          <div className="max-w-7xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
-            เว็บไซต์นี้พัฒนาโดย Nook-Thanakorn
+      <body className="min-h-screen bg-[#F4F7FE] text-gray-800">
+        <div className="flex h-screen overflow-hidden">
+          {user && <SideBar isAdmin={isAdmin} userEmail={user.email} userRole={userRole} />}
+          
+          <div className="flex-1 flex flex-col h-screen overflow-y-auto">
+            <main className={user ? "flex-1 p-6 md:p-8" : "flex-1"}>
+              {children}
+            </main>
+            {user && (
+              <footer className="py-4 text-center text-sm text-gray-400 mt-auto">
+                เว็บไซต์นี้พัฒนาโดย Nook-Thanakorn
+              </footer>
+            )}
           </div>
-        </footer>
+        </div>
       </body>
     </html>
   );

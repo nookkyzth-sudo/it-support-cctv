@@ -40,29 +40,29 @@ export default async function RepairsPage({
       userBranchId,
       includeLogs: true,
       viewerUserId: user.id,
-      isAdmin,
+      userRole: dbUser?.role,
     }),
   ]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">ข้อมูลการซ่อม</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-[28px] font-extrabold text-[#2B3674] tracking-tight">ข้อมูลการซ่อม</h1>
+        <p className="text-sm font-medium text-gray-400 mt-1">ประวัติการซ่อมบำรุงทั้งหมด</p>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-end">
-        <TicketFilters
-          branches={branches}
-          categories={categories}
-          basePath="/repairs"
-        />
-        <RepairDateFilter
-          dateFrom={params.date_from || ""}
-          dateTo={params.date_to || ""}
-        />
-      </div>
-
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
+        <div className="flex flex-wrap gap-3 items-end mb-6">
+          <TicketFilters
+            branches={branches}
+            categories={categories}
+            basePath="/repairs"
+          />
+          <RepairDateFilter
+            dateFrom={params.date_from || ""}
+            dateTo={params.date_to || ""}
+          />
+        </div>
         <RepairTable tickets={tickets} />
       </div>
     </div>

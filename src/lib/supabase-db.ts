@@ -47,21 +47,21 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function getKpis(options?: {
   userBranchId?: number | null;
   viewerUserId?: string;
-  isAdmin?: boolean;
+  userRole?: string;
 }): Promise<DashboardKpi> {
   const supabase = await createAdminClient();
   const userBranchId = options?.userBranchId;
   const viewerUserId = options?.viewerUserId;
-  const isAdmin = options?.isAdmin || false;
+  const userRole = options?.userRole;
 
   let query = supabase.from("tickets").select("*", { count: "exact", head: true });
   if (userBranchId) query = query.eq("branch_id", userBranchId);
-  if (!isAdmin && viewerUserId) query = query.eq("reporter_id", viewerUserId);
+  if (userRole === "staff" && viewerUserId) query = query.eq("reporter_id", viewerUserId);
   const { count: pending } = await query.eq("status", "Pending");
 
   query = supabase.from("tickets").select("*", { count: "exact", head: true });
   if (userBranchId) query = query.eq("branch_id", userBranchId);
-  if (!isAdmin && viewerUserId) query = query.eq("reporter_id", viewerUserId);
+  if (userRole === "staff" && viewerUserId) query = query.eq("reporter_id", viewerUserId);
   const { count: inProgress } = await query.in("status", ["In_Progress", "Claim"]);
 
   const todayStart = new Date();
@@ -69,14 +69,14 @@ export async function getKpis(options?: {
 
   query = supabase.from("tickets").select("*", { count: "exact", head: true });
   if (userBranchId) query = query.eq("branch_id", userBranchId);
-  if (!isAdmin && viewerUserId) query = query.eq("reporter_id", viewerUserId);
+  if (userRole === "staff" && viewerUserId) query = query.eq("reporter_id", viewerUserId);
   const { count: resolvedToday } = await query
     .eq("status", "Resolved")
     .gte("resolved_date", todayStart.toISOString());
 
   query = supabase.from("tickets").select("*", { count: "exact", head: true });
   if (userBranchId) query = query.eq("branch_id", userBranchId);
-  if (!isAdmin && viewerUserId) query = query.eq("reporter_id", viewerUserId);
+  if (userRole === "staff" && viewerUserId) query = query.eq("reporter_id", viewerUserId);
   const { count: resolved } = await query.eq("status", "Resolved");
 
   return {
@@ -116,9 +116,12 @@ export async function getTickets(filters?: {
   if (filters?.category_id) query = query.eq("category_id", parseInt(filters.category_id));
   if (filters?.status) query = query.eq("status", filters.status);
   if (filters?.userBranchId) query = query.eq("branch_id", filters.userBranchId);
-  if (!filters?.isAdmin && filters?.viewerUserId) {
+  if (filters?.userRole === "staff" && filters?.viewerUserId) {
     query = query.eq("reporter_id", filters.viewerUserId);
   }
+  // For technician, if userBranchId is passed, it already filters by branch_id on line 118.
+  // If technician has no branch_id, they see all (global leader), so no extra filter needed.
+  // For admin, they see all.
   if (filters?.date_from) query = query.gte("report_date", new Date(filters.date_from).toISOString());
   if (filters?.date_to) {
     const to = new Date(filters.date_to);
@@ -141,7 +144,7 @@ export async function getTicketById(
     .select("*, branch:branches(*), category:categories(*), reporter:users!reporter_id(*), technician:users!technician_id(*)")
     .eq("ticket_id", id);
 
-  if (!options?.isAdmin && options?.viewerUserId) {
+  if (options?.userRole === "staff" && options?.viewerUserId) {
     ticketQuery = ticketQuery.eq("reporter_id", options.viewerUserId);
   }
 

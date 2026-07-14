@@ -11,7 +11,7 @@ const statusLabel: Record<string, string> = {
   Pending: "รอรับงาน",
   In_Progress: "กำลังดำเนินการ",
   Claim: "เคลม",
-  Resolved: "เสร็จสิ้น",
+  Resolved: "แก้ไขเรียบร้อย",
 };
 
 export function Timeline({ logs }: { logs: TicketLog[] }) {

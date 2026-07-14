@@ -8,76 +8,84 @@ datasource db {
 }
 
 model branches {
-  branch_id   Int      @id @default(autoincrement())
-  branch_name String   @unique @db.VarChar(100)
-  zone        String?  @db.VarChar(50)
-  users       users[]
-  tickets     tickets[]
+  branch_id              Int                      @id @default(autoincrement())
+  branch_name            String                   @unique @db.VarChar(100)
+  zone                   String?                  @db.VarChar(50)
+  users                  users[]
+  tickets                tickets[]
+  purchase_requests      purchase_requests[]
+  equipment_replacements equipment_replacements[]
 }
 
 model categories {
-  category_id   Int      @id @default(autoincrement())
-  category_name String   @unique @db.VarChar(100)
+  category_id   Int       @id @default(autoincrement())
+  category_name String    @unique @db.VarChar(100)
   tickets       tickets[]
 }
 
 model users {
-  user_id    String   @id @db.Uuid
-  name       String   @db.VarChar(100)
-  email      String?  @unique @db.VarChar(255)
-  role       user_role @default(staff)
-  branch_id  Int?
-  branch     branches? @relation(fields: [branch_id], references: [branch_id])
-  tickets    tickets[] @relation("reporter")
-  tech_tickets tickets[] @relation("technician")
-  attachments ticket_attachments[]
-  logs       ticket_logs[]
+  user_id                String                   @id @db.Uuid
+  name                   String                   @db.VarChar(100)
+  email                  String?                  @unique @db.VarChar(255)
+  role                   user_role                @default(staff)
+  branch_id              Int?
+  branch                 branches?                @relation(fields: [branch_id], references: [branch_id])
+  tickets                tickets[]                @relation("reporter")
+  tech_tickets           tickets[]                @relation("technician")
+  attachments            ticket_attachments[]
+  logs                   ticket_logs[]
+  purchase_requests      purchase_requests[]      @relation("requester")
+  equipment_replacements   equipment_replacements[] @relation("recorder")
+  purchase_attachments     purchase_attachments[]
+  installation_attachments installation_attachments[] @relation("installation_uploader")
 
   @@map("users")
 }
 
 model tickets {
-  ticket_id        Int      @id @default(autoincrement())
-  branch_id        Int
-  branch           branches @relation(fields: [branch_id], references: [branch_id])
-  category_id      Int
-  category         categories @relation(fields: [category_id], references: [category_id])
-  reporter_id      String   @db.Uuid
-  reporter         users    @relation("reporter", fields: [reporter_id], references: [user_id])
-  report_date      DateTime @default(now()) @db.Timestamptz()
-  issue_description String  @db.Text
-  status           ticket_status @default(Pending)
-  technician_id    String?  @db.Uuid
-  technician       users?   @relation("technician", fields: [technician_id], references: [user_id])
-  technician_note  String?  @db.Text
-  resolved_date    DateTime? @db.Timestamptz()
-  attachments      ticket_attachments[]
-  logs             ticket_logs[]
+  ticket_id              Int                      @id @default(autoincrement())
+  branch_id              Int
+  branch                 branches                 @relation(fields: [branch_id], references: [branch_id])
+  category_id            Int
+  category               categories               @relation(fields: [category_id], references: [category_id])
+  reporter_id            String                   @db.Uuid
+  reporter               users                    @relation("reporter", fields: [reporter_id], references: [user_id])
+  report_date            DateTime                 @default(now()) @db.Timestamptz()
+  issue_description      String                   @db.Text
+  status                 ticket_status            @default(Pending)
+  technician_id          String?                  @db.Uuid
+  technician             users?                   @relation("technician", fields: [technician_id], references: [user_id])
+  technician_note        String?                  @db.Text
+  resolved_date          DateTime?                @db.Timestamptz()
+  attachments            ticket_attachments[]
+  logs                   ticket_logs[]
+  purchase_requests      purchase_requests[]
+  equipment_replacements equipment_replacements[]
 }
 
 model ticket_attachments {
-  attachment_id Int      @id @default(autoincrement())
+  attachment_id Int             @id @default(autoincrement())
   ticket_id     Int
-  ticket        tickets  @relation(fields: [ticket_id], references: [ticket_id])
-  file_path     String   @db.VarChar(255)
+  ticket        tickets         @relation(fields: [ticket_id], references: [ticket_id])
+  file_path     String          @db.VarChar(255)
   type          attachment_type
-  uploaded_by   String   @db.Uuid
-  uploader      users    @relation(fields: [uploaded_by], references: [user_id])
-  uploaded_at   DateTime @default(now()) @db.Timestamptz()
+  uploaded_by   String          @db.Uuid
+  uploader      users           @relation(fields: [uploaded_by], references: [user_id])
+  uploaded_at   DateTime        @default(now()) @db.Timestamptz()
 
   @@map("ticket_attachments")
 }
 
 model ticket_logs {
-  log_id     Int      @id @default(autoincrement())
+  log_id     Int            @id @default(autoincrement())
   ticket_id  Int
-  ticket     tickets  @relation(fields: [ticket_id], references: [ticket_id])
+  ticket     tickets        @relation(fields: [ticket_id], references: [ticket_id])
   old_status ticket_status?
   new_status ticket_status
-  note       String?  @db.Text
-  changed_by String   @db.Uuid
-  changer    users    @relation(fields: [changed_by], references: [user_id])
-  changed_at DateTime @default(now()) @db.Timestamptz()
+  note       String?        @db.Text
+  changed_by String         @db.Uuid
+  changer    users          @relation(fields: [changed_by], references: [user_id])
+  changed_at DateTime       @default(now()) @db.Timestamptz()
 
   @@map("ticket_logs")
 }
@@ -104,4 +112,95 @@ enum attachment_type {
   after
 
   @@map("attachment_type")
+}
+
+model purchase_requests {
+  id                Int      @id @default(autoincrement())
+  branch_id         Int
+  branch            branches @relation(fields: [branch_id], references: [branch_id])
+  requester_id      String   @db.Uuid
+  requester         users    @relation("requester", fields: [requester_id], references: [user_id])
+  request_date      DateTime @default(now()) @db.Timestamptz()
+  
+  target_branch     String   @db.VarChar(100)
+  items_details     String   @db.Text
+  total_price       Float
+  reason            String?  @db.Text
+  payment_condition String   @db.VarChar(255)
+  employee_name     String   @db.VarChar(100)
+  area_manager      String   @db.VarChar(100)
+  last_purchased    String   @db.VarChar(255)
+  distance          String   @db.VarChar(255)
+
+  status            purchase_status @default(Pending)
+  ticket_id         Int?
+  ticket            tickets? @relation(fields: [ticket_id], references: [ticket_id])
+  notes             String?  @db.Text
+  updated_at        DateTime @updatedAt @db.Timestamptz()
+  attachments       purchase_attachments[]
+
+  @@map("purchase_requests")
+}
+
+enum purchase_status {
+  Pending
+  Approved
+  Rejected
+  Ordered
+  Received
+
+  @@map("purchase_status")
+}
+
+model equipment_replacements {
+  id                Int              @id @default(autoincrement())
+  branch_id         Int
+  branch            branches         @relation(fields: [branch_id], references: [branch_id])
+  target_branch     String?          @db.VarChar(100)
+  equipment_name    String           @db.VarChar(255)
+  equipment_details String?          @db.Text
+  serial_number     String?          @db.VarChar(100)
+  action            equipment_action @default(Replacement)
+  replaced_item     String?          @db.VarChar(255)
+  action_date       DateTime         @default(now()) @db.Timestamptz()
+  recorded_by       String           @db.Uuid
+  recorder          users            @relation("recorder", fields: [recorded_by], references: [user_id])
+  ticket_id         Int?
+  ticket            tickets?         @relation(fields: [ticket_id], references: [ticket_id])
+  notes             String?          @db.Text
+  attachments       installation_attachments[]
+
+  @@map("equipment_replacements")
+}
+
+model installation_attachments {
+  attachment_id   Int                    @id @default(autoincrement())
+  installation_id Int
+  installation    equipment_replacements @relation(fields: [installation_id], references: [id])
+  file_path       String                 @db.VarChar(255)
+  type            String                 @db.VarChar(50) // "equipment" or "receipt"
+  uploaded_by     String                 @db.Uuid
+  uploader        users                  @relation("installation_uploader", fields: [uploaded_by], references: [user_id])
+  uploaded_at     DateTime               @default(now()) @db.Timestamptz()
+
+  @@map("installation_attachments")
+}
+
+enum equipment_action {
+  New_Purchase
+  Replacement
+
+  @@map("equipment_action")
+}
+
+model purchase_attachments {
+  attachment_id Int               @id @default(autoincrement())
+  purchase_id   Int
+  purchase      purchase_requests @relation(fields: [purchase_id], references: [id])
+  file_path     String            @db.VarChar(255)
+  uploaded_by   String            @db.Uuid
+  uploader      users             @relation(fields: [uploaded_by], references: [user_id])
+  uploaded_at   DateTime          @default(now()) @db.Timestamptz()
+
+  @@map("purchase_attachments")
 }

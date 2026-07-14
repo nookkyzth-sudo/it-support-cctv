@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useMemo, useState } from "react";
 import {
   createBranchAction,
@@ -164,7 +166,7 @@ export function AdminPanel({ branches, categories, users, tickets }: AdminPanelP
         </div>
         <div className="space-y-2">
           {pagedUsers.map((u) => (
-            <form key={u.user_id} action={updateUserAction} className="grid grid-cols-1 md:grid-cols-7 gap-2">
+            <form key={u.user_id} action={updateUserAction} className="grid grid-cols-1 md:grid-cols-8 gap-2">
               <input type="hidden" name="user_id" value={u.user_id} />
               <input name="name" defaultValue={u.name} required className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
               <input name="email" defaultValue={u.email || ""} className="border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="email" />
@@ -179,7 +181,13 @@ export function AdminPanel({ branches, categories, users, tickets }: AdminPanelP
                   <option key={b.branch_id} value={b.branch_id}>{b.branch_name}</option>
                 ))}
               </select>
-              <button type="submit" className="rounded-lg border border-gray-300 px-3 py-2 text-sm">บันทึก</button>
+              <Link 
+                href={`/admin/users/${u.user_id}`}
+                className="flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 px-3 py-2 text-sm font-medium hover:bg-blue-100 transition-colors"
+              >
+                ดูข้อมูล
+              </Link>
+              <button type="submit" className="rounded-lg border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50">บันทึก</button>
               <button
                 type="submit"
                 formAction={deleteUserAction}
@@ -187,7 +195,7 @@ export function AdminPanel({ branches, categories, users, tickets }: AdminPanelP
                 onClick={(e) => {
                   if (!confirm(`ยืนยันลบผู้ใช้ ${u.name} ?`)) e.preventDefault();
                 }}
-                className="rounded-lg border border-red-300 text-red-600 px-3 py-2 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                className="rounded-lg border border-red-300 text-red-600 px-3 py-2 text-sm hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {userInUse.has(u.user_id) ? "กำลังใช้งาน" : "ลบ"}
               </button>

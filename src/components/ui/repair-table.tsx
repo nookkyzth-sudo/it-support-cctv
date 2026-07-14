@@ -15,7 +15,7 @@ const statusLabel: Record<string, string> = {
   Pending: "รอรับงาน",
   In_Progress: "กำลังดำเนินการ",
   Claim: "เคลม",
-  Resolved: "เสร็จสิ้น",
+  Resolved: "แก้ไขเรียบร้อย",
 };
 
 type RepairRow = {
@@ -148,48 +148,48 @@ export function RepairTable({ tickets }: { tickets: Ticket[] }) {
       </div>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-200 bg-gray-50">
-            <th className="text-left py-3 px-4 font-medium text-gray-500">วันที่แจ้ง</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">สาขา</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">อุปกรณ์</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">อาการ</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">วันที่ซ่อม</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">สถานะ</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">จัดการ</th>
+          <tr className="border-b border-gray-100 uppercase tracking-wider text-[11px] font-bold text-gray-400">
+            <th className="text-left py-3 px-4 pb-4">วันที่แจ้ง</th>
+            <th className="text-left py-3 px-4 pb-4">สาขา</th>
+            <th className="text-left py-3 px-4 pb-4">อุปกรณ์</th>
+            <th className="text-left py-3 px-4 pb-4">อาการ</th>
+            <th className="text-left py-3 px-4 pb-4">วันที่ซ่อม</th>
+            <th className="text-left py-3 px-4 pb-4">สถานะ</th>
+            <th className="text-left py-3 px-4 pb-4">จัดการ</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row, idx) => (
             <tr
               key={`${row.ticket.ticket_id}-${idx}`}
-              className={`border-b border-gray-100 transition-colors ${row.isFirst ? "hover:bg-blue-50/40" : "hover:bg-gray-50 bg-gray-50/30"}`}
+              className={`border-b border-gray-50 transition-colors ${row.isFirst ? "hover:bg-[#F4F7FE]/50" : "hover:bg-[#F4F7FE]/30 bg-gray-50/20"}`}
             >
-              <td className="py-2 px-4 text-gray-500 text-xs">
+              <td className="py-4 px-4 text-gray-500 font-medium">
                 {row.isFirst ? formatDate(row.ticket.report_date) : ""}
               </td>
-              <td className="py-2 px-4 font-medium">
+              <td className="py-4 px-4 font-bold text-[#2B3674]">
                 {row.isFirst ? (row.ticket.branch?.branch_name || "") : ""}
               </td>
-              <td className="py-2 px-4">
+              <td className="py-4 px-4 font-medium text-gray-600">
                 {row.isFirst ? (row.ticket.category?.category_name || "") : ""}
               </td>
-              <td className="py-2 px-4 max-w-xs truncate">
+              <td className="py-4 px-4 max-w-xs truncate font-medium text-gray-500">
                 {row.isFirst ? row.ticket.issue_description : ""}
               </td>
-              <td className="py-2 px-4 text-gray-500 text-xs">
+              <td className="py-4 px-4 text-gray-500 font-medium">
                 {row.ticket.resolved_date ? formatDate(row.ticket.resolved_date) : "-"}
               </td>
-              <td className="py-2 px-4">
+              <td className="py-4 px-4">
                 <span
-                  className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusBadge[row.ticket.status] || ""}`}
+                  className={`inline-block px-3 py-1 rounded-md text-xs font-bold ${statusBadge[row.ticket.status] || ""}`}
                 >
                   {statusLabel[row.ticket.status] || row.ticket.status}
                 </span>
               </td>
-              <td className="py-2 px-4">
+              <td className="py-4 px-4">
                 <Link
                   href={`/tickets/${row.ticket.ticket_id}`}
-                  className="inline-flex items-center rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+                  className="inline-flex items-center rounded-lg bg-[#F4F7FE] px-4 py-2 text-xs font-bold text-[#4318FF] hover:bg-gray-100 transition-colors"
                 >
                   ดูรายละเอียด
                 </Link>

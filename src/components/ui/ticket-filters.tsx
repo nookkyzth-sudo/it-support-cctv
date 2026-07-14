@@ -62,7 +62,7 @@ export function TicketFilters({
         <option value="Pending">รอรับงาน</option>
         <option value="In_Progress">กำลังดำเนินการ</option>
         <option value="Claim">เคลม</option>
-        <option value="Resolved">เสร็จสิ้น</option>
+        <option value="Resolved">แก้ไขเรียบร้อย</option>
       </select>
 
     </div>
