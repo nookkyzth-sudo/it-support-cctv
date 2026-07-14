@@ -61,6 +61,18 @@ export default async function TeamUserProfilePage({ params }: { params: Promise<
     })
   ]);
 
+  // Helper to format dates to string for TicketTable
+  const formatTicketDates = (t: any) => ({
+    ...t,
+    report_date: t.report_date ? t.report_date.toISOString() : null,
+    repair_date: t.repair_date ? t.repair_date.toISOString() : null,
+    completion_date: t.completion_date ? t.completion_date.toISOString() : null,
+    updated_at: t.updated_at ? t.updated_at.toISOString() : null,
+  });
+
+  const formattedReportedTickets = reportedTickets.map(formatTicketDates) as any;
+  const formattedTechTickets = techTickets.map(formatTicketDates) as any;
+
   // Statistics
   const totalReported = reportedTickets.length;
   const totalResolvedTech = techTickets.filter(t => t.status === "Resolved").length;
@@ -145,7 +157,7 @@ export default async function TeamUserProfilePage({ params }: { params: Promise<
               <Wrench size={20} className="text-blue-600" /> ประวัติการแจ้งซ่อม (Reported)
             </h2>
             <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
-              <TicketTable tickets={reportedTickets} userRole={userProfile.role} currentUserId={userProfile.user_id} />
+              <TicketTable tickets={formattedReportedTickets} userRole={userProfile.role} currentUserId={userProfile.user_id} />
             </div>
           </section>
         )}
@@ -156,7 +168,7 @@ export default async function TeamUserProfilePage({ params }: { params: Promise<
               <Wrench size={20} className="text-green-600" /> ประวัติการรับงานซ่อม (Assigned Technician)
             </h2>
             <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
-              <TicketTable tickets={techTickets} userRole={userProfile.role} currentUserId={userProfile.user_id} />
+              <TicketTable tickets={formattedTechTickets} userRole={userProfile.role} currentUserId={userProfile.user_id} />
             </div>
           </section>
         )}

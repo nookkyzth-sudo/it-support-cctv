@@ -97,6 +97,7 @@ export async function getTickets(filters?: {
   includeLogs?: boolean;
   viewerUserId?: string;
   isAdmin?: boolean;
+  userRole?: string;
 }): Promise<Ticket[]> {
   const supabase = await createAdminClient();
 
@@ -135,7 +136,7 @@ export async function getTickets(filters?: {
 
 export async function getTicketById(
   id: number,
-  options?: { viewerUserId?: string; isAdmin?: boolean }
+  options?: { viewerUserId?: string; isAdmin?: boolean; userRole?: string }
 ): Promise<Ticket | null> {
   const supabase = await createAdminClient();
 
