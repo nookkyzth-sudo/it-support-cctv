@@ -7,7 +7,13 @@ import { PurchaseTable } from "@/components/ui/purchase-table";
 import { InstallationTable } from "@/components/ui/installation-table";
 import { ArrowLeft, User, Wrench, ShoppingCart, HardDrive, CheckCircle2, PlusCircle } from "lucide-react";
 
-export default async function AdminUserProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AdminUserProfilePage({ 
+  params,
+  searchParams 
+}: { 
+  params: Promise<{ id: string }>,
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
   const auth = await createClient();
   const { data: { user: currentUser } } = await auth.auth.getUser();
 
@@ -25,6 +31,7 @@ export default async function AdminUserProfilePage({ params }: { params: Promise
   }
 
   const userId = (await params).id;
+  const currentTab = (await searchParams).tab || "reported";
 
   const userProfile = await prisma.users.findUnique({
     where: { user_id: userId },
@@ -91,30 +98,34 @@ export default async function AdminUserProfilePage({ params }: { params: Promise
         </div>
       </div>
 
-      {/* KPI Stats */}
+      {/* KPI Stats (Clickable Tabs) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-            <PlusCircle size={24} />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 font-medium">แจ้งซ่อมทั้งหมด</p>
-            <h3 className="text-2xl font-bold text-[#2B3674]">{totalReported}</h3>
-          </div>
-        </div>
-
-        {userProfile.role === "technician" || userProfile.role === "admin" ? (
-          <div className="bg-white rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
-              <CheckCircle2 size={24} />
+        <Link href="?tab=reported">
+          <div className={`rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4 transition-all hover:scale-[1.02] cursor-pointer ${currentTab === "reported" ? "bg-[#4318FF] text-white" : "bg-white"}`}>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${currentTab === "reported" ? "bg-white/20 text-white" : "bg-blue-50 text-blue-600"}`}>
+              <PlusCircle size={24} />
             </div>
             <div>
-              <p className="text-sm text-gray-500 font-medium">ปิดงานซ่อมแล้ว</p>
-              <h3 className="text-2xl font-bold text-[#2B3674]">{totalResolvedTech} <span className="text-sm text-gray-400 font-normal">/ {techTickets.length}</span></h3>
+              <p className={`text-sm font-medium ${currentTab === "reported" ? "text-white/80" : "text-gray-500"}`}>แจ้งซ่อมทั้งหมด</p>
+              <h3 className={`text-2xl font-bold ${currentTab === "reported" ? "text-white" : "text-[#2B3674]"}`}>{totalReported}</h3>
             </div>
           </div>
+        </Link>
+
+        {userProfile.role === "technician" || userProfile.role === "admin" ? (
+          <Link href="?tab=tech">
+            <div className={`rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4 transition-all hover:scale-[1.02] cursor-pointer ${currentTab === "tech" ? "bg-[#05CD99] text-white" : "bg-white"}`}>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${currentTab === "tech" ? "bg-white/20 text-white" : "bg-green-50 text-green-600"}`}>
+                <CheckCircle2 size={24} />
+              </div>
+              <div>
+                <p className={`text-sm font-medium ${currentTab === "tech" ? "text-white/80" : "text-gray-500"}`}>รับงานซ่อม</p>
+                <h3 className={`text-2xl font-bold ${currentTab === "tech" ? "text-white" : "text-[#2B3674]"}`}>{totalResolvedTech} <span className={`text-sm font-normal ${currentTab === "tech" ? "text-white/80" : "text-gray-400"}`}>/ {techTickets.length}</span></h3>
+              </div>
+            </div>
+          </Link>
         ) : (
-          <div className="bg-white rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4 opacity-50">
+          <div className="bg-white rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4 opacity-50 cursor-not-allowed">
              <div className="w-12 h-12 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center">
               <Wrench size={24} />
             </div>
@@ -125,78 +136,100 @@ export default async function AdminUserProfilePage({ params }: { params: Promise
           </div>
         )}
 
-        <div className="bg-white rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center">
-            <ShoppingCart size={24} />
+        <Link href="?tab=purchases">
+          <div className={`rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4 transition-all hover:scale-[1.02] cursor-pointer ${currentTab === "purchases" ? "bg-[#FFCE20] text-white" : "bg-white"}`}>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${currentTab === "purchases" ? "bg-white/20 text-white" : "bg-orange-50 text-orange-500"}`}>
+              <ShoppingCart size={24} />
+            </div>
+            <div>
+              <p className={`text-sm font-medium ${currentTab === "purchases" ? "text-white/90" : "text-gray-500"}`}>จดบันทึกแจ้งซื้อ</p>
+              <h3 className={`text-2xl font-bold ${currentTab === "purchases" ? "text-white" : "text-[#2B3674]"}`}>{totalPurchases}</h3>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500 font-medium">จดบันทึกแจ้งซื้อ</p>
-            <h3 className="text-2xl font-bold text-[#2B3674]">{totalPurchases}</h3>
-          </div>
-        </div>
+        </Link>
 
-        <div className="bg-white rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
-            <HardDrive size={24} />
+        <Link href="?tab=installations">
+          <div className={`rounded-[20px] p-5 shadow-[0_18px_40px_rgba(112,144,176,0.12)] flex items-center gap-4 transition-all hover:scale-[1.02] cursor-pointer ${currentTab === "installations" ? "bg-[#7000FF] text-white" : "bg-white"}`}>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${currentTab === "installations" ? "bg-white/20 text-white" : "bg-purple-50 text-purple-600"}`}>
+              <HardDrive size={24} />
+            </div>
+            <div>
+              <p className={`text-sm font-medium ${currentTab === "installations" ? "text-white/80" : "text-gray-500"}`}>บันทึกติดตั้งอุปกรณ์</p>
+              <h3 className={`text-2xl font-bold ${currentTab === "installations" ? "text-white" : "text-[#2B3674]"}`}>{totalInstallations}</h3>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500 font-medium">บันทึกติดตั้งอุปกรณ์</p>
-            <h3 className="text-2xl font-bold text-[#2B3674]">{totalInstallations}</h3>
-          </div>
-        </div>
+        </Link>
       </div>
 
       {/* Sections */}
       <div className="space-y-8">
         
-        {reportedTickets.length > 0 && (
+        {currentTab === "reported" && (
           <section>
             <h2 className="text-lg font-bold text-[#2B3674] mb-4 flex items-center gap-2">
-              <Wrench size={20} className="text-blue-600" /> ประวัติการแจ้งซ่อม (Reported)
+              <PlusCircle size={20} className="text-[#4318FF]" /> ประวัติการแจ้งซ่อม (Reported)
             </h2>
-            <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
-              <TicketTable tickets={formattedReportedTickets} userRole={userProfile.role} currentUserId={userProfile.user_id} />
-            </div>
+            {reportedTickets.length > 0 ? (
+              <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
+                <TicketTable tickets={formattedReportedTickets} userRole={userProfile.role} currentUserId={userProfile.user_id} />
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-400 bg-white rounded-[20px] shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
+                ไม่มีประวัติการแจ้งซ่อม
+              </div>
+            )}
           </section>
         )}
 
-        {techTickets.length > 0 && (
+        {currentTab === "tech" && (userProfile.role === "technician" || userProfile.role === "admin") && (
           <section>
             <h2 className="text-lg font-bold text-[#2B3674] mb-4 flex items-center gap-2">
-              <Wrench size={20} className="text-green-600" /> ประวัติการรับงานซ่อม (Assigned Technician)
+              <CheckCircle2 size={20} className="text-[#05CD99]" /> ประวัติการรับงานซ่อม (Assigned Technician)
             </h2>
-            <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
-              <TicketTable tickets={formattedTechTickets} userRole={userProfile.role} currentUserId={userProfile.user_id} />
-            </div>
+            {techTickets.length > 0 ? (
+              <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
+                <TicketTable tickets={formattedTechTickets} userRole={userProfile.role} currentUserId={userProfile.user_id} />
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-400 bg-white rounded-[20px] shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
+                ไม่มีประวัติการรับงานซ่อม
+              </div>
+            )}
           </section>
         )}
 
-        {purchaseRequests.length > 0 && (
+        {currentTab === "purchases" && (
           <section>
             <h2 className="text-lg font-bold text-[#2B3674] mb-4 flex items-center gap-2">
-              <ShoppingCart size={20} className="text-orange-500" /> ประวัติจดบันทึกแจ้งซื้อ
+              <ShoppingCart size={20} className="text-[#FFCE20]" /> ประวัติจดบันทึกแจ้งซื้อ
             </h2>
-            <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
-              <PurchaseTable initialData={purchaseRequests} isAdmin={true} />
-            </div>
+            {purchaseRequests.length > 0 ? (
+              <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
+                <PurchaseTable initialData={purchaseRequests} isAdmin={true} />
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-400 bg-white rounded-[20px] shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
+                ไม่มีประวัติจดบันทึกแจ้งซื้อ
+              </div>
+            )}
           </section>
         )}
 
-        {installations.length > 0 && (
+        {currentTab === "installations" && (
           <section>
             <h2 className="text-lg font-bold text-[#2B3674] mb-4 flex items-center gap-2">
-              <HardDrive size={20} className="text-purple-600" /> ประวัติบันทึกติดตั้ง/เปลี่ยนอุปกรณ์
+              <HardDrive size={20} className="text-[#7000FF]" /> ประวัติบันทึกติดตั้ง/เปลี่ยนอุปกรณ์
             </h2>
-            <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
-              <InstallationTable initialData={installations} isAdmin={true} />
-            </div>
+            {installations.length > 0 ? (
+              <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
+                <InstallationTable initialData={installations} isAdmin={true} />
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-400 bg-white rounded-[20px] shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
+                ไม่มีประวัติบันทึกติดตั้ง/เปลี่ยนอุปกรณ์
+              </div>
+            )}
           </section>
-        )}
-
-        {reportedTickets.length === 0 && techTickets.length === 0 && purchaseRequests.length === 0 && installations.length === 0 && (
-          <div className="text-center py-12 text-gray-400 bg-white rounded-[20px] shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
-            ผู้ใช้นี้ยังไม่มีประวัติการทำรายการใดๆ ในระบบ
-          </div>
         )}
 
       </div>
