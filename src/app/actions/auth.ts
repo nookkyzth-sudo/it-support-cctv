@@ -109,3 +109,32 @@ export async function logout() {
   revalidatePath("/", "layout");
   redirect("/login");
 }
+
+export async function updatePassword(
+  prevState: { error?: string; success?: string } | null,
+  formData: FormData
+) {
+  const newPassword = formData.get("newPassword") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (!newPassword || !confirmPassword) {
+    return { error: "กรุณากรอกข้อมูลให้ครบถ้วน" };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { error: "รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน" };
+  }
+
+  if (newPassword.length < 6) {
+    return { error: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { success: "เปลี่ยนรหัสผ่านสำเร็จ" };
+}

@@ -11,7 +11,8 @@ import {
   Settings,
   LogOut,
   HardDrive,
-  Users
+  Users,
+  UserCircle
 } from "lucide-react";
 
 export function SideBar({ 
@@ -99,13 +100,24 @@ export function SideBar({
       </div>
 
       {/* Footer (Logout) */}
-      <div className="p-4 border-t border-gray-100">
+      <div className="p-4 border-t border-gray-100 space-y-2">
+        <Link
+          href="/profile"
+          className={`flex items-center gap-3 px-3 py-2.5 w-full rounded-xl transition-colors ${
+            pathname === "/profile" 
+              ? "bg-[#F4F7FE] text-blue-600 font-medium shadow-sm" 
+              : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+          }`}
+        >
+          <UserCircle size={20} strokeWidth={pathname === "/profile" ? 2.5 : 2} className={pathname === "/profile" ? "text-blue-600" : "text-gray-400"} />
+          <span className="font-medium">โปรไฟล์ของฉัน</span>
+        </Link>
         <form action={logout}>
           <button
             type="submit"
             className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
           >
-            <LogOut size={20} strokeWidth={2} />
+            <LogOut size={20} strokeWidth={2} className="text-gray-400" />
             <span className="font-medium">ออกจากระบบ</span>
           </button>
         </form>
