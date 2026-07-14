@@ -70,10 +70,13 @@ export function TicketTable({ tickets, userRole, currentUserId }: { tickets: Tic
     });
   }, [tickets, branchFilter, categoryFilter, statusFilter, dateFrom, dateTo]);
 
+  const showUserCol = userRole === "technician" || userRole === "admin";
+
   const downloadCsv = () => {
     const headers = [
       "วันที่แจ้ง",
       "สาขา",
+      ...(showUserCol ? ["ผู้แจ้ง"] : []),
       "อุปกรณ์",
       "อาการ",
       "วันที่ซ่อม",
@@ -87,12 +90,18 @@ export function TicketTable({ tickets, userRole, currentUserId }: { tickets: Tic
       const firstBase = [
         formatDate(ticket.report_date),
         ticket.branch?.branch_name || "",
+        ...(showUserCol ? [ticket.reporter?.name || "-"] : []),
         ticket.category?.category_name || "",
         ticket.issue_description,
         ticket.resolved_date ? formatDate(ticket.resolved_date) : "-",
         statusLabel[ticket.status] || ticket.status,
       ];
-      const extraBase = ["", "", "", "",
+      const extraBase = [
+        "", 
+        "", 
+        ...(showUserCol ? [""] : []),
+        "", 
+        "",
         ticket.resolved_date ? formatDate(ticket.resolved_date) : "-",
         statusLabel[ticket.status] || ticket.status,
       ];
@@ -129,22 +138,26 @@ export function TicketTable({ tickets, userRole, currentUserId }: { tickets: Tic
     const XLSX = await import("xlsx");
     const data: Record<string, string>[] = [];
     for (const ticket of filteredTickets) {
-      const firstBase = {
+      const firstBase: Record<string, string> = {
         "วันที่แจ้ง": formatDate(ticket.report_date),
         สาขา: ticket.branch?.branch_name || "",
-        อุปกรณ์: ticket.category?.category_name || "",
-        อาการ: ticket.issue_description,
-        "วันที่ซ่อม": ticket.resolved_date ? formatDate(ticket.resolved_date) : "-",
-        สถานะ: statusLabel[ticket.status] || ticket.status,
       };
-      const extraBase = {
+      if (showUserCol) firstBase["ผู้แจ้ง"] = ticket.reporter?.name || "-";
+      
+      firstBase["อุปกรณ์"] = ticket.category?.category_name || "";
+      firstBase["อาการ"] = ticket.issue_description;
+      firstBase["วันที่ซ่อม"] = ticket.resolved_date ? formatDate(ticket.resolved_date) : "-";
+      firstBase["สถานะ"] = statusLabel[ticket.status] || ticket.status;
+      const extraBase: Record<string, string> = {
         "วันที่แจ้ง": "",
         สาขา: "",
-        อุปกรณ์: "",
-        อาการ: "",
-        "วันที่ซ่อม": ticket.resolved_date ? formatDate(ticket.resolved_date) : "-",
-        สถานะ: statusLabel[ticket.status] || ticket.status,
       };
+      if (showUserCol) extraBase["ผู้แจ้ง"] = "";
+
+      extraBase["อุปกรณ์"] = "";
+      extraBase["อาการ"] = "";
+      extraBase["วันที่ซ่อม"] = ticket.resolved_date ? formatDate(ticket.resolved_date) : "-";
+      extraBase["สถานะ"] = statusLabel[ticket.status] || ticket.status;
       const notes = (ticket.logs || []).filter((l) => l.note?.trim());
       if (notes.length === 0) {
         data.push({ ...firstBase, "แก้ไข": "", "หมายเหตุ": "" });
@@ -289,6 +302,7 @@ export function TicketTable({ tickets, userRole, currentUserId }: { tickets: Tic
             <thead>
               <tr className="border-b border-gray-100 uppercase tracking-wider text-[11px] font-bold text-gray-400">
                 <th className="text-left py-3 px-4 pb-4">สาขา</th>
+                {showUserCol && <th className="text-left py-3 px-4 pb-4">ผู้แจ้ง</th>}
                 <th className="text-left py-3 px-4 pb-4">อุปกรณ์</th>
                 <th className="text-left py-3 px-4 pb-4">อาการ</th>
                 <th className="text-left py-3 px-4 pb-4">วันที่ซ่อม</th>
@@ -304,6 +318,7 @@ export function TicketTable({ tickets, userRole, currentUserId }: { tickets: Tic
                   className="border-b border-gray-50 hover:bg-[#F4F7FE]/50 transition-colors"
                 >
                   <td className="py-4 px-4 font-bold text-[#2B3674]">{ticket.branch?.branch_name}</td>
+                  {showUserCol && <td className="py-4 px-4 font-medium text-gray-600">{ticket.reporter?.name || "-"}</td>}
                   <td className="py-4 px-4 font-medium text-gray-600">{ticket.category?.category_name}</td>
                   <td className="py-4 px-4 max-w-xs truncate text-gray-500 font-medium">
                     {ticket.issue_description}

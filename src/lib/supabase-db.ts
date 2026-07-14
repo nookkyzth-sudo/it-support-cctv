@@ -103,7 +103,7 @@ export async function getTickets(filters?: {
 
   const selectQuery = filters?.includeLogs
     ? "*, branch:branches(*), category:categories(*), reporter:users!reporter_id(*), technician:users!technician_id(*), logs:ticket_logs(log_id,note,changed_at,old_status,new_status,changed_by)"
-    : "*, branch:branches(*), category:categories(*), technician:users!technician_id(*)";
+    : "*, branch:branches(*), category:categories(*), reporter:users!reporter_id(*), technician:users!technician_id(*)";
 
   const pageLimit = filters?.includeLogs ? 200 : 50;
 

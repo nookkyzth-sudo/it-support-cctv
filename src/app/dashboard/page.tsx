@@ -65,7 +65,7 @@ export default async function DashboardPage({
         </div>
         <TicketFilters branches={branches} categories={categories} />
         <div className="mt-6">
-          <TicketTable tickets={tickets} />
+          <TicketTable tickets={tickets} userRole={dbUser?.role} currentUserId={user.id} />
         </div>
       </div>
     </div>
