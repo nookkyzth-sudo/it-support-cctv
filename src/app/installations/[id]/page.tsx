@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { prisma } from "@/lib/prisma";
 import { InstallationForm } from "@/components/ui/installation-form";
+import { DeleteImageButton } from "@/components/ui/delete-image-button";
 
 export default async function EditInstallationPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
@@ -38,6 +39,7 @@ export default async function EditInstallationPage({ params }: { params: Promise
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {equipmentImages.map((att) => (
               <div key={att.attachment_id} className="relative group rounded-[14px] overflow-hidden shadow-sm border border-gray-100">
+                <DeleteImageButton attachmentId={att.attachment_id} />
                 <a href={att.file_path} target="_blank" rel="noopener noreferrer">
                   <img
                     src={att.file_path}
@@ -57,6 +59,7 @@ export default async function EditInstallationPage({ params }: { params: Promise
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {receiptImages.map((att) => (
               <div key={att.attachment_id} className="relative group rounded-[14px] overflow-hidden shadow-sm border border-gray-100">
+                <DeleteImageButton attachmentId={att.attachment_id} />
                 <a href={att.file_path} target="_blank" rel="noopener noreferrer">
                   <img
                     src={att.file_path}
