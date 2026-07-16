@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
     where: { user_id: user.id }
   });
 
-  let whereClause: any = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const whereClause: any = {};
   if (dbUser?.role === "staff" && dbUser.branch_id) {
     whereClause.branch_id = dbUser.branch_id;
   } else if (branch_id) {
@@ -121,9 +122,9 @@ export async function DELETE(request: NextRequest) {
     });
 
     return Response.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error deleting purchase request:", error);
-    return Response.json({ error: error.message || "Failed to delete" }, { status: 500 });
+    return Response.json({ error: (error as Error).message || "Failed to delete" }, { status: 500 });
   }
 }
 

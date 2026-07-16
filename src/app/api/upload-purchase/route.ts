@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
     });
 
     return Response.json(attachment, { status: 201 });
-  } catch (dbError: any) {
+  } catch (dbError) {
     console.error("DB error:", dbError);
-    return Response.json({ error: dbError.message }, { status: 500 });
+    return Response.json({ error: (dbError as Error).message }, { status: 500 });
   }
 }

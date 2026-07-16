@@ -4,10 +4,9 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 export function PurchaseForm({ 
-  branches, 
   initialData = null 
 }: { 
-  branches?: any[], 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialData?: any 
 }) {
   const router = useRouter();

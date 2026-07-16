@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function InstallationTable({ initialData, isAdmin }: { initialData: any[], isAdmin: boolean }) {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<number | null>(null);

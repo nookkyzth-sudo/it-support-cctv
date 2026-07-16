@@ -5,7 +5,7 @@ import Link from "next/link";
 import { TicketTable } from "@/components/ui/ticket-table";
 import { PurchaseTable } from "@/components/ui/purchase-table";
 import { InstallationTable } from "@/components/ui/installation-table";
-import { ArrowLeft, User, Wrench, ShoppingCart, HardDrive, CheckCircle2, PlusCircle } from "lucide-react";
+import { ArrowLeft, Wrench, ShoppingCart, HardDrive, CheckCircle2, PlusCircle } from "lucide-react";
 
 export default async function TeamUserProfilePage({ 
   params,
@@ -67,6 +67,7 @@ export default async function TeamUserProfilePage({
   ]);
 
   // Helper to format dates to string for TicketTable
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formatTicketDates = (t: any) => ({
     ...t,
     report_date: t.report_date ? t.report_date.toISOString() : null,
@@ -75,7 +76,9 @@ export default async function TeamUserProfilePage({
     updated_at: t.updated_at ? t.updated_at.toISOString() : null,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formattedReportedTickets = reportedTickets.map(formatTicketDates) as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formattedTechTickets = techTickets.map(formatTicketDates) as any;
 
   // Statistics

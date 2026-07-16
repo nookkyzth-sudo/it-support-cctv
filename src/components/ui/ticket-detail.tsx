@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateTicketStatus } from "@/app/actions/tickets";
 import { Timeline } from "./timeline";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import type { Ticket } from "@/types";
 
 const statusBadge: Record<string, string> = {
@@ -185,7 +185,7 @@ export function TicketDetail({ ticket }: { ticket: Ticket }) {
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none disabled:bg-gray-100 disabled:text-gray-500"
             />
             {!canEditProgress && (
-              <p className="mt-1 text-xs text-amber-700">กรุณากด "รับงาน" ก่อน จึงจะเริ่มบันทึกความคืบหน้าได้</p>
+              <p className="mt-1 text-xs text-amber-700">กรุณากด &quot;รับงาน&quot; ก่อน จึงจะเริ่มบันทึกความคืบหน้าได้</p>
             )}
           </div>
 

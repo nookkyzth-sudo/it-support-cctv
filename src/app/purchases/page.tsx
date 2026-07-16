@@ -11,7 +11,8 @@ export default async function PurchasesPage() {
 
   const dbUser = await prisma.users.findUnique({ where: { user_id: user.id } });
   
-  let whereClause: any = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const whereClause: any = {};
   if (dbUser?.role === "staff") {
     // Staff sees only their own requests
     whereClause.requester_id = user.id;

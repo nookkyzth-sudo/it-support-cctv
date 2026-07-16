@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
   const branch_id = searchParams.get("branch_id");
 
   try {
-    let whereClause: any = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const whereClause: any = {};
     if (branch_id) {
       whereClause.branch_id = parseInt(branch_id);
     }
@@ -78,8 +79,8 @@ export async function POST(request: NextRequest) {
     });
 
     return Response.json(installation, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    return Response.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return Response.json({ error: (error as Error).message || "Internal Server Error" }, { status: 500 });
   }
 }

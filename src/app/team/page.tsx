@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient, createClient } from "@/lib/supabase-server";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Users, Search } from "lucide-react";
+import { Users } from "lucide-react";
 
 export default async function TeamPage() {
   const auth = await createClient();
@@ -23,7 +23,8 @@ export default async function TeamPage() {
     redirect("/dashboard");
   }
 
-  let whereClause: any = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const whereClause: any = {
     role: { not: "admin" }
   };
   

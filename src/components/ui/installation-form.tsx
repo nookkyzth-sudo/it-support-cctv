@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 export function InstallationForm({ 
   initialData = null 
 }: { 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialData?: any 
 }) {
   const router = useRouter();

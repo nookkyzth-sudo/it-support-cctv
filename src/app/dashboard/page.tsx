@@ -8,7 +8,7 @@ import {
   getTickets,
 } from "@/lib/supabase-db";
 import { KpiWidget } from "@/components/ui/kpi-widget";
-import { TicketFilters } from "@/components/ui/ticket-filters";
+
 import { TicketTable } from "@/components/ui/ticket-table";
 
 export default async function DashboardPage({
@@ -63,7 +63,7 @@ export default async function DashboardPage({
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold text-[#2B3674]">รายการแจ้งซ่อม</h2>
         </div>
-        <TicketFilters branches={branches} categories={categories} />
+
         <div className="mt-6">
           <TicketTable tickets={tickets} userRole={dbUser?.role} currentUserId={user.id} />
         </div>

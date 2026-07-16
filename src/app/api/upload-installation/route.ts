@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Use admin client to bypass RLS for storage upload since it might be blocked
-    const adminClient = require('@supabase/supabase-js').createClient(
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const adminClient = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
@@ -73,8 +74,8 @@ export async function POST(request: NextRequest) {
     });
 
     return Response.json({ url: publicUrl, id: attachment.attachment_id }, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Upload Error:", error);
-    return Response.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return Response.json({ error: (error as Error).message || "Internal Server Error" }, { status: 500 });
   }
 }

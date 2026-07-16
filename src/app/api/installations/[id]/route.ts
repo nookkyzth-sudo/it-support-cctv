@@ -34,7 +34,8 @@ export async function DELETE(
 
       if (paths.length > 0) {
          // Need admin client to bypass RLS for delete if user is not the owner
-         const adminClient = require('@supabase/supabase-js').createClient(
+         const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+         const adminClient = createSupabaseClient(
            process.env.NEXT_PUBLIC_SUPABASE_URL!,
            process.env.SUPABASE_SERVICE_ROLE_KEY!
          );
@@ -106,8 +107,8 @@ export async function PUT(
     });
 
     return Response.json(updated);
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    return Response.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return Response.json({ error: (error as Error).message || "Internal Server Error" }, { status: 500 });
   }
 }
