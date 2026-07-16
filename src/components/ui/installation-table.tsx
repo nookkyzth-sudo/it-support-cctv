@@ -1,12 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function InstallationTable({ initialData, isAdmin }: { initialData: any[], isAdmin: boolean }) {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredData = useMemo(() => {
+    if (!searchTerm.trim()) return initialData;
+    const lower = searchTerm.toLowerCase();
+    return initialData.filter((item) => {
+      return (
+        item.target_branch?.toLowerCase().includes(lower) ||
+        item.branch?.branch_name?.toLowerCase().includes(lower) ||
+        item.recorder?.name?.toLowerCase().includes(lower) ||
+        item.equipment_details?.toLowerCase().includes(lower)
+      );
+    });
+  }, [initialData, searchTerm]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("คุณต้องการลบบันทึกนี้ใช่หรือไม่?")) return;
@@ -35,7 +49,21 @@ export function InstallationTable({ initialData, isAdmin }: { initialData: any[]
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <input
+          type="text"
+          placeholder="ค้นหาสาขา, ผู้บันทึก, ข้อมูลอุปกรณ์..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2 text-sm w-full max-w-xs focus:ring-2 focus:ring-[#4318FF] focus:border-transparent outline-none"
+        />
+      </div>
+
+      {filteredData.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">ไม่พบข้อมูลที่ค้นหา</div>
+      ) : (
+        <div className="overflow-x-auto">
       <table className="w-full text-sm text-left">
         <thead>
           <tr className="border-b border-gray-100 uppercase tracking-wider text-[11px] font-bold text-gray-400">
@@ -46,7 +74,7 @@ export function InstallationTable({ initialData, isAdmin }: { initialData: any[]
           </tr>
         </thead>
         <tbody>
-          {initialData.map((item) => (
+          {filteredData.map((item) => (
              <tr key={item.id} className="border-b border-gray-50 hover:bg-[#F4F7FE]/50 align-top transition-colors">
               <td className="px-4 py-4 whitespace-nowrap text-gray-500 font-medium">
                 {new Date(item.action_date).toLocaleDateString('th-TH')}
@@ -83,6 +111,8 @@ export function InstallationTable({ initialData, isAdmin }: { initialData: any[]
           ))}
         </tbody>
       </table>
+    </div>
+      )}
     </div>
   );
 }
