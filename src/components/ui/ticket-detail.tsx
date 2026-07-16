@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateTicketStatus } from "@/app/actions/tickets";
+import { deleteTicketAttachment } from "@/app/actions/ticket-attachments";
+import { ImageActions } from "./image-actions";
 import { Timeline } from "./timeline";
 import { formatDateTime } from "@/lib/format";
 import type { Ticket } from "@/types";
@@ -128,15 +130,24 @@ export function TicketDetail({ ticket }: { ticket: Ticket }) {
           <h2 className="font-semibold text-gray-900 mb-3">รูปภาพ</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {ticket.attachments.map((att) => (
-              <div key={att.attachment_id}>
-                <img
-                  src={att.file_path}
-                  alt={att.type}
-                  className="w-full h-32 object-cover rounded-lg"
+              <div key={att.attachment_id} className="relative group rounded-lg overflow-hidden border border-gray-100">
+                <a href={att.file_path} target="_blank" rel="noopener noreferrer">
+                  <img
+                    src={att.file_path}
+                    alt={att.type}
+                    className="w-full h-32 object-cover"
+                  />
+                </a>
+                <ImageActions 
+                  attachmentId={att.attachment_id} 
+                  filePath={att.file_path} 
+                  onDelete={deleteTicketAttachment} 
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  {att.type === "before" ? "ก่อนซ่อม" : "หลังซ่อม"}
-                </p>
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-1 backdrop-blur-sm">
+                  <p className="text-[10px] text-center font-medium">
+                    {att.type === "before" ? "ก่อนซ่อม" : "หลังซ่อม"}
+                  </p>
+                </div>
               </div>
             ))}
           </div>

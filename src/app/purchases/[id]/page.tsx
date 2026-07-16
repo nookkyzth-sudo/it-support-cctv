@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { prisma } from "@/lib/prisma";
 import { PurchaseForm } from "@/components/ui/purchase-form";
+import { ImageActions } from "@/components/ui/image-actions";
+import { deletePurchaseAttachment } from "@/app/actions/purchase-attachments";
 
 export default async function EditPurchasePage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
@@ -42,6 +44,11 @@ export default async function EditPurchasePage({ params }: { params: Promise<{ i
                     className="w-full h-40 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-300"
                   />
                 </a>
+                <ImageActions 
+                  attachmentId={att.attachment_id} 
+                  filePath={att.file_path} 
+                  onDelete={deletePurchaseAttachment} 
+                />
               </div>
             ))}
           </div>
