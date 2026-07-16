@@ -48,19 +48,20 @@ export function RepairTable({ tickets }: { tickets: Ticket[] }) {
   const rows = buildRows(sortedTickets);
 
   const downloadCsv = () => {
-    const headers = ["วันที่แจ้ง", "สาขา", "อุปกรณ์", "อาการ", "วันที่ซ่อม", "สถานะ", "แก้ไข", "หมายเหตุ"];
+    const headers = ["วันที่แจ้ง", "สาขา", "ผู้แจ้ง", "อุปกรณ์", "อาการ", "วันที่ซ่อม", "สถานะ", "แก้ไข", "หมายเหตุ"];
     const csvRows: string[][] = [];
     for (const ticket of sortedTickets) {
       const firstBase = [
         formatDate(ticket.report_date),
         ticket.branch?.branch_name || "",
+        ticket.reporter?.name || "-",
         ticket.category?.category_name || "",
         ticket.issue_description,
         ticket.resolved_date ? formatDate(ticket.resolved_date) : "-",
         statusLabel[ticket.status] || ticket.status,
       ];
       const extraBase = [
-        "", "", "", "",
+        "", "", "", "", "",
         ticket.resolved_date ? formatDate(ticket.resolved_date) : "-",
         statusLabel[ticket.status] || ticket.status,
       ];
@@ -94,6 +95,7 @@ export function RepairTable({ tickets }: { tickets: Ticket[] }) {
       const firstBase = {
         "วันที่แจ้ง": formatDate(ticket.report_date),
         สาขา: ticket.branch?.branch_name || "",
+        ผู้แจ้ง: ticket.reporter?.name || "-",
         อุปกรณ์: ticket.category?.category_name || "",
         อาการ: ticket.issue_description,
         "วันที่ซ่อม": ticket.resolved_date ? formatDate(ticket.resolved_date) : "-",
@@ -102,6 +104,7 @@ export function RepairTable({ tickets }: { tickets: Ticket[] }) {
       const extraBase = {
         "วันที่แจ้ง": "",
         สาขา: "",
+        ผู้แจ้ง: "",
         อุปกรณ์: "",
         อาการ: "",
         "วันที่ซ่อม": ticket.resolved_date ? formatDate(ticket.resolved_date) : "-",
@@ -151,6 +154,7 @@ export function RepairTable({ tickets }: { tickets: Ticket[] }) {
           <tr className="border-b border-gray-100 uppercase tracking-wider text-[11px] font-bold text-gray-400">
             <th className="text-left py-3 px-4 pb-4">วันที่แจ้ง</th>
             <th className="text-left py-3 px-4 pb-4">สาขา</th>
+            <th className="text-left py-3 px-4 pb-4">ผู้แจ้ง</th>
             <th className="text-left py-3 px-4 pb-4">อุปกรณ์</th>
             <th className="text-left py-3 px-4 pb-4">อาการ</th>
             <th className="text-left py-3 px-4 pb-4">วันที่ซ่อม</th>
@@ -169,6 +173,9 @@ export function RepairTable({ tickets }: { tickets: Ticket[] }) {
               </td>
               <td className="py-4 px-4 font-bold text-[#2B3674]">
                 {row.isFirst ? (row.ticket.branch?.branch_name || "") : ""}
+              </td>
+              <td className="py-4 px-4 font-medium text-gray-500">
+                {row.isFirst ? (row.ticket.reporter?.name || "-") : ""}
               </td>
               <td className="py-4 px-4 font-medium text-gray-600">
                 {row.isFirst ? (row.ticket.category?.category_name || "") : ""}
