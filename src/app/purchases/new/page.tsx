@@ -8,9 +8,6 @@ export default async function NewPurchasePage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const branches = await prisma.branches.findMany({
-    orderBy: { branch_name: 'asc' }
-  });
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 pb-10">
@@ -19,7 +16,7 @@ export default async function NewPurchasePage() {
         <p className="text-sm font-medium text-gray-400 mt-1">กรอกข้อมูลการแจ้งซื้ออุปกรณ์ของสาขา</p>
       </div>
       <div className="bg-white rounded-[20px] p-6 shadow-[0_18px_40px_rgba(112,144,176,0.12)]">
-        <PurchaseForm branches={branches} />
+        <PurchaseForm />
       </div>
     </div>
   );
