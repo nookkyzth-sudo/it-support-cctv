@@ -12,7 +12,8 @@ import {
   LogOut,
   HardDrive,
   Users,
-  UserCircle
+  UserCircle,
+  Activity
 } from "lucide-react";
 
 export function SideBar({ 
@@ -35,6 +36,7 @@ export function SideBar({
         { href: "/report", label: "แจ้งซ่อม", icon: PlusCircle },
         { href: "/purchases", label: "จดบันทึกแจ้งซื้อ", icon: ShoppingCart },
         { href: "/installations", label: "บันทึกการติดตั้ง", icon: HardDrive },
+        { href: "/open-port", label: "ตรวจสอบพอร์ต", icon: Activity },
       ]
     },
     ...((userRole === "technician" || userRole === "admin") ? [{
